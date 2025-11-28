@@ -7,9 +7,13 @@ Repositório contendo a configuração do chatbot de atendimento da iPass, inclu
 ```
 iPass-CA/
 ├── README.md
-├── fluxograma_chatbot_ipass.md      # Fluxograma visual do chatbot
-├── iPass-canal de atendimento Copia.json  # Configuração do chatbot (AltU)
-└── RELATORIO_CONFORMIDADE.md        # Relatório de validação
+├── fluxograma_chatbot_ipass.md              # Fluxograma visual do chatbot
+├── iPass-canal de atendimento Copia.json    # Configuração do chatbot (AltU)
+├── ipass-zenvia-chatbot.json                # Configuração do chatbot (Zenvia)
+├── ZENVIA_README.md                         # Documentação Zenvia
+├── RELATORIO_CONFORMIDADE.md                # Relatório de validação
+├── analisar_fluxo.py                        # Script de análise básica
+└── analisar_fluxo_detalhado.py              # Script de análise detalhada
 ```
 
 ## 🎯 Objetivo
@@ -55,19 +59,42 @@ Fluxograma visual em Mermaid que representa toda a estrutura de conversação do
 - Fluxo de avaliação
 
 ### `iPass-canal de atendimento Copia.json`
-Arquivo de configuração do chatbot no formato AltU Builder. Contém:
+Arquivo de configuração do chatbot no formato **AltU Builder**. Contém:
 - Estrutura de diálogos (codificada em base64)
 - Configurações de publicação
 - Nós de diálogo e suas conexões
 - Variáveis e condições de fluxo
 
+### `ipass-zenvia-chatbot.json`
+Arquivo de configuração do chatbot no formato **Zenvia**. Contém:
+- Estrutura de nós simplificada
+- Configurações de input e validação
+- Fluxo de transições
+- Integrações via webhook
+- Suporte para WhatsApp, Webchat e Instagram
+
+📖 [Ver documentação completa do Zenvia](ZENVIA_README.md)
+
 ### `RELATORIO_CONFORMIDADE.md`
 Relatório técnico validando a conformidade entre o fluxograma e a implementação JSON.
 
-## 🛠️ Tecnologias
+## 🛠️ Plataformas Suportadas
 
-- **AltU Builder**: Plataforma de construção de chatbots
+### AltU Builder
+- Plataforma de construção de chatbots
+- Arquivo: `iPass-canal de atendimento Copia.json`
+- Formato: Diálogos codificados em base64
+
+### Zenvia
+- Plataforma omnichannel de conversação
+- Arquivo: `ipass-zenvia-chatbot.json`
+- Canais: WhatsApp, Webchat, Instagram
+- Recursos: NPS, Webhooks, Validações
+- [Ver documentação completa](ZENVIA_README.md)
+
+### Outras Tecnologias
 - **Mermaid**: Linguagem de diagramação para fluxogramas
+- **Python**: Scripts de validação e análise
 - **JSON**: Formato de configuração
 
 ## 📊 Validação

@@ -1,0 +1,696 @@
+{
+  "name": "iPass - Canal de Atendimento",
+  "description": "Chatbot de atendimento iPass com suporte financeiro e técnico",
+  "version": "1.0.0",
+  "platform": "zenvia",
+  "entry_point": "inicio",
+  "settings": {
+    "timeout": 300,
+    "fallback_message": "Desculpe, não entendi. Pode reformular sua pergunta?",
+    "error_message": "Ocorreu um erro. Por favor, tente novamente.",
+    "end_session_message": "Obrigado pelo contato! Até logo! 👋"
+  },
+  "variables": {
+    "user_name": "",
+    "user_email": "",
+    "support_type": "",
+    "question_type": "",
+    "nps_score": 0,
+    "user_feedback": ""
+  },
+  "nodes": [
+    {
+      "id": "inicio",
+      "name": "Boas-vindas e Coleta de Nome",
+      "type": "text_input",
+      "messages": [
+        {
+          "type": "text",
+          "content": "Olá! Eu sou o assistente virtual da empresa iPass. 😊"
+        },
+        {
+          "type": "text",
+          "content": "Estou aqui para tirar as suas dúvidas."
+        },
+        {
+          "type": "text",
+          "content": "Para continuar, vou precisar de algumas informações básicas."
+        },
+        {
+          "type": "text",
+          "content": "Qual é o seu nome?"
+        }
+      ],
+      "input": {
+        "type": "text",
+        "variable": "user_name",
+        "required": true
+      },
+      "transitions": [
+        {
+          "condition": "true",
+          "target": "coleta_email"
+        }
+      ]
+    },
+    {
+      "id": "coleta_email",
+      "name": "Coleta de E-mail",
+      "type": "text_input",
+      "messages": [
+        {
+          "type": "text",
+          "content": "E o seu e-mail?"
+        },
+        {
+          "type": "text",
+          "content": "Lembre-se de usar somente letras minúsculas e de seguir o formato: nome@nome.com"
+        }
+      ],
+      "input": {
+        "type": "email",
+        "variable": "user_email",
+        "required": true,
+        "validation": {
+          "regex": "^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$",
+          "max_attempts": 2,
+          "error_messages": [
+            "O email informado ainda não está certo. Vamos tentar mais uma vez.\nTente escrever nesse formato: nome@nome.com",
+            "Desculpe, mas o e-mail informado não é válido, por isso, infelizmente, vou ter que encerrar esta conversa.\nSe quiser tentar de novo, é só me chamar. 😊"
+          ]
+        }
+      },
+      "transitions": [
+        {
+          "condition": "true",
+          "target": "confirma_dados"
+        }
+      ]
+    },
+    {
+      "id": "confirma_dados",
+      "name": "Confirmação de Dados",
+      "type": "message",
+      "messages": [
+        {
+          "type": "text",
+          "content": "Tudo certo! Agora vamos às suas dúvidas."
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "true",
+          "target": "menu_principal"
+        }
+      ]
+    },
+    {
+      "id": "menu_principal",
+      "name": "Menu Principal",
+      "type": "menu",
+      "messages": [
+        {
+          "type": "text",
+          "content": "Como posso ajudá-lo hoje? Escolha uma das opções abaixo:"
+        }
+      ],
+      "input": {
+        "type": "menu",
+        "variable": "support_type",
+        "options": [
+          {
+            "id": "financeiro",
+            "label": "💰 Suporte Financeiro",
+            "value": "Suporte Financeiro",
+            "description": "Reembolsos, pagamentos e formas de pagamento"
+          },
+          {
+            "id": "tecnico",
+            "label": "🔧 Suporte Técnico",
+            "value": "Suporte Tecnico",
+            "description": "Senha, transferências, ingressos e mais"
+          },
+          {
+            "id": "outros",
+            "label": "❓ Outros",
+            "value": "Outros",
+            "description": "Outras dúvidas"
+          }
+        ]
+      },
+      "transitions": [
+        {
+          "condition": "{{support_type}} == 'Suporte Financeiro'",
+          "target": "menu_financeiro"
+        },
+        {
+          "condition": "{{support_type}} == 'Suporte Tecnico'",
+          "target": "menu_tecnico"
+        },
+        {
+          "condition": "{{support_type}} == 'Outros'",
+          "target": "outros"
+        }
+      ]
+    },
+    {
+      "id": "menu_financeiro",
+      "name": "Menu Suporte Financeiro",
+      "type": "menu",
+      "messages": [
+        {
+          "type": "text",
+          "content": "Sobre qual assunto você precisa de ajuda?"
+        }
+      ],
+      "input": {
+        "type": "menu",
+        "variable": "question_type",
+        "options": [
+          {
+            "id": "reembolso",
+            "label": "🔁 Reembolso/Cancelamento",
+            "value": "Reembolso"
+          },
+          {
+            "id": "pagamento_recusado",
+            "label": "❌ Pagamento Recusado",
+            "value": "Pagamento Recusado"
+          },
+          {
+            "id": "formas_pagamento",
+            "label": "💳 Formas de Pagamento",
+            "value": "Formas de Pagamento"
+          },
+          {
+            "id": "outros_financeiro",
+            "label": "❓ Outros",
+            "value": "Outros"
+          }
+        ]
+      },
+      "transitions": [
+        {
+          "condition": "{{question_type}} == 'Reembolso'",
+          "target": "reembolso"
+        },
+        {
+          "condition": "{{question_type}} == 'Pagamento Recusado'",
+          "target": "pagamento_recusado"
+        },
+        {
+          "condition": "{{question_type}} == 'Formas de Pagamento'",
+          "target": "formas_pagamento"
+        },
+        {
+          "condition": "true",
+          "target": "duvida_respondida"
+        }
+      ]
+    },
+    {
+      "id": "menu_tecnico",
+      "name": "Menu Suporte Técnico",
+      "type": "quick_reply",
+      "messages": [
+        {
+          "type": "text",
+          "content": "Qual é sua dúvida técnica?"
+        }
+      ],
+      "input": {
+        "type": "quick_reply",
+        "variable": "question_type",
+        "options": [
+          {
+            "id": "senha",
+            "label": "🔑 Recuperar Senha",
+            "value": "Redefinição de senha"
+          },
+          {
+            "id": "meia",
+            "label": "🎓 Meia Entrada",
+            "value": "Meia Entrada"
+          },
+          {
+            "id": "transferencia",
+            "label": "↔️ Transferir Ingresso",
+            "value": "Transferência"
+          },
+          {
+            "id": "localizar",
+            "label": "📍 Localizar Ingressos",
+            "value": "Onde estão meus ingressos"
+          },
+          {
+            "id": "classificacao",
+            "label": "🔞 Classificação Indicativa",
+            "value": "Classificação Indicativa"
+          },
+          {
+            "id": "outros_tecnico",
+            "label": "❓ Outros",
+            "value": "Outros"
+          }
+        ]
+      },
+      "transitions": [
+        {
+          "condition": "{{question_type}} == 'Redefinição de senha'",
+          "target": "redefinicao_senha"
+        },
+        {
+          "condition": "{{question_type}} == 'Meia Entrada'",
+          "target": "meia_entrada"
+        },
+        {
+          "condition": "{{question_type}} == 'Transferência'",
+          "target": "transferencia"
+        },
+        {
+          "condition": "{{question_type}} == 'Onde estão meus ingressos'",
+          "target": "localizar_ingressos"
+        },
+        {
+          "condition": "{{question_type}} == 'Classificação Indicativa'",
+          "target": "classificacao_indicativa"
+        },
+        {
+          "condition": "true",
+          "target": "duvida_respondida"
+        }
+      ]
+    },
+    {
+      "id": "reembolso",
+      "name": "Informações sobre Reembolso",
+      "type": "message",
+      "messages": [
+        {
+          "type": "text",
+          "content": "🔁 *Política de Cancelamento e Reembolso*\n\nDe acordo com o Art. 49 do Código de Defesa do Consumidor, você tem direito ao reembolso em até 7 dias após a compra.\n\n*Como solicitar:*\n1. Acesse sua conta no site iPass.com.br\n2. Vá em \"Meus Pedidos\"\n3. Selecione o pedido desejado\n4. Clique em \"Solicitar Reembolso\"\n\n⏱️ O prazo para devolução é de até 30 dias úteis.\n\n*Importante:* Após os 7 dias, o cancelamento depende da política do evento/produtor."
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "true",
+          "target": "duvida_respondida"
+        }
+      ]
+    },
+    {
+      "id": "pagamento_recusado",
+      "name": "Informações sobre Pagamento Recusado",
+      "type": "message",
+      "messages": [
+        {
+          "type": "text",
+          "content": "*Motivos comuns para recusa da compra:*\n\n• Saldo ou limite insuficiente no cartão\n• Dados do cartão incorretos\n• Bloqueio de segurança do banco/operadora\n• Cartão vencido ou cancelado\n• Restrições de crédito\n\n*O que fazer?*\n\n1. Verifique seu saldo/limite\n2. Confirme os dados do cartão\n3. Entre em contato com seu banco\n4. Tente outro cartão ou forma de pagamento\n\nSe o problema persistir, entre em contato com nossa central."
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "true",
+          "target": "duvida_respondida"
+        }
+      ]
+    },
+    {
+      "id": "formas_pagamento",
+      "name": "Formas de Pagamento",
+      "type": "message",
+      "messages": [
+        {
+          "type": "text",
+          "content": "*Formas de Pagamento Disponíveis:*\n\n💳 *Cartão de Crédito*\n• Principais bandeiras aceitas\n• Parcelamento disponível (conforme evento)\n\n📱 *PIX*\n• Pagamento instantâneo\n• Aprovação imediata\n• Código válido por 15 minutos\n\n*Como pagar via PIX:*\n1. Finalize sua compra\n2. Copie o código PIX\n3. Abra seu app bancário\n4. Cole o código e confirme\n5. Aguarde a confirmação por email"
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "true",
+          "target": "duvida_respondida"
+        }
+      ]
+    },
+    {
+      "id": "redefinicao_senha",
+      "name": "Recuperação de Senha",
+      "type": "message",
+      "messages": [
+        {
+          "type": "text",
+          "content": "🔑 *Para recuperar sua senha:*\n\n1. Acesse iPass.com.br\n2. Clique em \"Entrar\"\n3. Clique em \"Esqueci minha senha\"\n4. Digite seu e-mail cadastrado\n5. Verifique sua caixa de entrada\n6. Siga as instruções do email\n\n📧 *Não recebeu o email?*\n• Verifique a caixa de spam/lixo eletrônico\n• Aguarde alguns minutos\n• Tente novamente\n\nSe precisar de ajuda, entre em contato conosco."
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "true",
+          "target": "duvida_respondida"
+        }
+      ]
+    },
+    {
+      "id": "meia_entrada",
+      "name": "Informações sobre Meia Entrada",
+      "type": "message",
+      "messages": [
+        {
+          "type": "text",
+          "content": "🎓 *MEIA-ENTRADA*\n\nA meia-entrada é um benefício previsto em lei para:\n\n• Estudantes (com documento válido)\n• Idosos (60+ anos)\n• Pessoas com deficiência\n• Jovens de baixa renda (CadÚnico)\n\n*Como utilizar:*\n1. Compre o ingresso de meia-entrada\n2. No dia do evento, apresente documento que comprove o direito\n3. Sem documento válido, você pagará a diferença na entrada\n\n*Documentos aceitos:*\n• Carteira de estudante (CIE, UNE, UBES)\n• Documento com foto + comprovante de matrícula\n• RG para idosos\n\n⚠️ A fiscalização é rigorosa. Tenha seu documento em mãos!"
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "true",
+          "target": "duvida_respondida"
+        }
+      ]
+    },
+    {
+      "id": "transferencia",
+      "name": "Transferência de Ingresso",
+      "type": "message",
+      "messages": [
+        {
+          "type": "text",
+          "content": "↔️ *Transferência de Titularidade*\n\nA transferência só pode ser feita pelo aplicativo iPass (Android e iOS) e pode ter cobrança.\n\n*Como transferir:*\n\n1. Abra o app iPass\n2. Acesse \"Ingressos\"\n3. Selecione o ingresso desejado\n4. Role até o final da página\n5. Toque em \"Transferir o ingresso\"\n6. Siga as instruções do app\n\n⚠️ *Atenção:*\n• Após a transferência, o ingresso anterior é invalidado\n• Um novo ingresso será gerado para o novo titular\n• O novo ingresso ficará disponível no CPF informado\n• O titular anterior não terá mais acesso ao ingresso\n• O prazo para transferência varia conforme a produtora\n\n📱 *Baixe o aplicativo iPass:*\n• App Store: https://apps.apple.com/br/app/ipass/id1599787628\n• Play Store: https://play.google.com/store/apps/details?id=com.ipass.clientes"
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "true",
+          "target": "duvida_respondida"
+        }
+      ]
+    },
+    {
+      "id": "localizar_ingressos",
+      "name": "Onde Encontrar Ingressos",
+      "type": "message",
+      "messages": [
+        {
+          "type": "text",
+          "content": "📍 *Onde encontrar seus ingressos:*\n\n1. No aplicativo iPass (seção 'Meus Ingressos')\n2. No email de confirmação da compra\n3. Na sua conta no site iPass.com.br\n\nPrecisa de ajuda para acessar? Posso te guiar passo a passo!"
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "true",
+          "target": "duvida_respondida"
+        }
+      ]
+    },
+    {
+      "id": "classificacao_indicativa",
+      "name": "Classificação Indicativa",
+      "type": "message",
+      "messages": [
+        {
+          "type": "text",
+          "content": "🔞 *Informações sobre classificação indicativa e entrada de menores*\n\nA política de acesso para menores de idade pode variar conforme determinações da justiça local e regras específicas de cada evento.\n\n*Principais orientações:*\n\n• *Classificação \"18+\"*: menores não podem entrar no evento ou setor, mesmo acompanhados dos pais ou responsáveis\n\n• Quando a entrada de menores for permitida *somente com pais ou responsáveis legais*, isso estará indicado na página do evento\n\n• Caso seja aceita a entrada de menores acompanhados de terceiros mediante *autorização autenticada em cartório*, essa informação também estará descrita na página de vendas\n\n• *Menores não têm acesso a áreas Open Bar*, independentemente de acompanhamento\n\n• A *classificação pode variar entre setores do mesmo evento*, então verifique cada área antes da compra\n\n⚠️ *Recomendação:* sempre revise atentamente as regras de classificação na página do evento para garantir conformidade e evitar qualquer imprevisto."
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "true",
+          "target": "duvida_respondida"
+        }
+      ]
+    },
+    {
+      "id": "outros",
+      "name": "Outras Dúvidas",
+      "type": "text_input",
+      "messages": [
+        {
+          "type": "text",
+          "content": "Que pena que não encontrou sua dúvida... 😔"
+        },
+        {
+          "type": "text",
+          "content": "Como não conseguimos te auxiliar com o atendimento, orientamos que entre em contato diretamente com nossa central de atendimento."
+        },
+        {
+          "type": "text",
+          "content": "Por favor, descreva sua dúvida que nossa equipe entrará em contato:"
+        }
+      ],
+      "input": {
+        "type": "text",
+        "variable": "user_question",
+        "required": true
+      },
+      "transitions": [
+        {
+          "condition": "true",
+          "target": "salva_pergunta"
+        }
+      ]
+    },
+    {
+      "id": "salva_pergunta",
+      "name": "Confirmação de Dúvida Salva",
+      "type": "message",
+      "messages": [
+        {
+          "type": "text",
+          "content": "Sua pergunta foi salva. Vamos entrar em contato com você em breve."
+        }
+      ],
+      "actions": [
+        {
+          "type": "webhook",
+          "url": "{{webhook_url}}/save_question",
+          "method": "POST",
+          "data": {
+            "name": "{{user_name}}",
+            "email": "{{user_email}}",
+            "question": "{{user_question}}",
+            "timestamp": "{{timestamp}}"
+          }
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "true",
+          "target": "nova_pergunta"
+        }
+      ]
+    },
+    {
+      "id": "duvida_respondida",
+      "name": "Verificar se Dúvida foi Respondida",
+      "type": "quick_reply",
+      "messages": [
+        {
+          "type": "text",
+          "content": "Espero que tenha esclarecido sua dúvida! 😊"
+        },
+        {
+          "type": "text",
+          "content": "Sua dúvida foi respondida? 😊"
+        }
+      ],
+      "input": {
+        "type": "quick_reply",
+        "variable": "duvida_resolvida",
+        "options": [
+          {
+            "id": "sim",
+            "label": "✅ Sim",
+            "value": "Sim"
+          },
+          {
+            "id": "nao",
+            "label": "❌ Não",
+            "value": "Não"
+          }
+        ]
+      },
+      "transitions": [
+        {
+          "condition": "{{duvida_resolvida}} == 'Sim'",
+          "target": "nova_pergunta"
+        },
+        {
+          "condition": "{{duvida_resolvida}} == 'Não'",
+          "target": "outros"
+        }
+      ]
+    },
+    {
+      "id": "nova_pergunta",
+      "name": "Verificar Nova Pergunta",
+      "type": "quick_reply",
+      "messages": [
+        {
+          "type": "text",
+          "content": "Você tem mais alguma dúvida?"
+        }
+      ],
+      "input": {
+        "type": "quick_reply",
+        "variable": "nova_pergunta",
+        "options": [
+          {
+            "id": "sim",
+            "label": "✅ Sim",
+            "value": "Sim"
+          },
+          {
+            "id": "nao",
+            "label": "❌ Não",
+            "value": "Não"
+          }
+        ]
+      },
+      "transitions": [
+        {
+          "condition": "{{nova_pergunta}} == 'Sim'",
+          "target": "menu_principal"
+        },
+        {
+          "condition": "{{nova_pergunta}} == 'Não'",
+          "target": "avaliacao"
+        }
+      ]
+    },
+    {
+      "id": "avaliacao",
+      "name": "Avaliação NPS",
+      "type": "nps",
+      "messages": [
+        {
+          "type": "text",
+          "content": "Em uma escala de 0 a 10, qual a probabilidade de você recomendar nossos serviços a um amigo ou familiar?"
+        },
+        {
+          "type": "text",
+          "content": "Sendo:"
+        },
+        {
+          "type": "text",
+          "content": "• 0 = Nada provável\n• 10 = Extremamente provável"
+        }
+      ],
+      "input": {
+        "type": "nps",
+        "variable": "nps_score",
+        "min": 0,
+        "max": 10
+      },
+      "transitions": [
+        {
+          "condition": "true",
+          "target": "quer_comentar"
+        }
+      ]
+    },
+    {
+      "id": "quer_comentar",
+      "name": "Verificar se Quer Comentar",
+      "type": "quick_reply",
+      "messages": [
+        {
+          "type": "text",
+          "content": "Gostaria de deixar um comentário sobre o atendimento?"
+        }
+      ],
+      "input": {
+        "type": "quick_reply",
+        "variable": "quer_comentar",
+        "options": [
+          {
+            "id": "sim",
+            "label": "✅ Sim",
+            "value": "Sim"
+          },
+          {
+            "id": "nao",
+            "label": "❌ Não",
+            "value": "Não"
+          }
+        ]
+      },
+      "transitions": [
+        {
+          "condition": "{{quer_comentar}} == 'Sim'",
+          "target": "comentario"
+        },
+        {
+          "condition": "{{quer_comentar}} == 'Não'",
+          "target": "fim"
+        }
+      ]
+    },
+    {
+      "id": "comentario",
+      "name": "Coleta de Comentário",
+      "type": "text_input",
+      "messages": [
+        {
+          "type": "text",
+          "content": "Ótimo! Conte mais sobre o que achou dos nossos serviços."
+        }
+      ],
+      "input": {
+        "type": "text",
+        "variable": "user_feedback",
+        "required": false
+      },
+      "transitions": [
+        {
+          "condition": "true",
+          "target": "fim"
+        }
+      ]
+    },
+    {
+      "id": "fim",
+      "name": "Finalização",
+      "type": "message",
+      "messages": [
+        {
+          "type": "text",
+          "content": "Obrigado pelo seu contato! 😊"
+        },
+        {
+          "type": "text",
+          "content": "Se precisar de mais alguma coisa, é só me chamar novamente."
+        },
+        {
+          "type": "text",
+          "content": "Tenha um ótimo dia! 🎉"
+        }
+      ],
+      "actions": [
+        {
+          "type": "webhook",
+          "url": "{{webhook_url}}/save_feedback",
+          "method": "POST",
+          "data": {
+            "name": "{{user_name}}",
+            "email": "{{user_email}}",
+            "nps_score": "{{nps_score}}",
+            "feedback": "{{user_feedback}}",
+            "timestamp": "{{timestamp}}"
+          }
+        },
+        {
+          "type": "end_session"
+        }
+      ],
+      "transitions": []
+    }
+  ],
+  "metadata": {
+    "created_at": "2025-11-28",
+    "author": "iPass Team",
+    "platform_version": "Zenvia 2.0",
+    "tags": ["atendimento", "ipass", "suporte", "chatbot"],
+    "supported_channels": ["whatsapp", "webchat", "instagram"],
+    "language": "pt-BR"
+  }
+}
+
+}
